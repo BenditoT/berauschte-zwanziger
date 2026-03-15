@@ -1,0 +1,681 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Die Berauschten Zwanziger – Projekt-Dashboard</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{
+  --gold:#d4a843;--gold-dark:#8b6914;--gold-light:#fdf2e0;
+  --bg:#f5f3ef;--card:#ffffff;--border:#e8dcc8;
+  --text:#2c2c2c;--muted:#6a6050;--subtle:#5a4a40;
+  --red:#e25d50;--blue:#3498db;--green:#2ecc71;--amber:#f0a040;
+  --radius:14px;--shadow:0 2px 12px rgba(212,168,67,0.06);
+}
+body{font-family:'Inter',system-ui,sans-serif;background:var(--bg);color:var(--text);line-height:1.65;overflow-x:hidden}
+
+/* ── LOGIN GATE ── */
+#loginGate{display:flex;justify-content:center;align-items:center;min-height:100vh;background:linear-gradient(135deg,#1a1a1a 0%,#2c1810 40%,#3a2010 70%,#1a1a1a 100%);position:relative;overflow:hidden}
+#loginGate::before{content:'';position:absolute;width:600px;height:600px;background:radial-gradient(circle,rgba(212,168,67,0.12),transparent 70%);top:50%;left:50%;transform:translate(-50%,-50%);pointer-events:none}
+.login-card{background:rgba(255,255,255,0.06);backdrop-filter:blur(16px);border-radius:20px;padding:3rem 2.5rem;max-width:400px;width:92%;box-shadow:0 12px 48px rgba(0,0,0,0.4);border:1px solid rgba(212,168,67,0.2);text-align:center;position:relative;z-index:1}
+.login-card h2{color:#e8dcc8;font-size:1.6rem;font-weight:800;margin-bottom:.3rem;letter-spacing:-.5px}
+.login-card .login-sub{color:#a09080;font-size:.85rem;margin-bottom:1.8rem}
+.login-card input{width:100%;padding:14px 18px;border:1px solid rgba(212,168,67,0.25);border-radius:10px;background:rgba(255,255,255,0.07);color:#fff;font-size:1rem;outline:none;box-sizing:border-box;margin-bottom:1rem;font-family:inherit;transition:border-color .2s}
+.login-card input:focus{border-color:var(--gold)}
+.login-card button{width:100%;padding:14px;background:linear-gradient(135deg,var(--gold),#b8922a);color:#fff;border:none;border-radius:10px;font-size:1rem;cursor:pointer;font-weight:700;font-family:inherit;transition:transform .15s,box-shadow .15s}
+.login-card button:hover{transform:translateY(-1px);box-shadow:0 6px 20px rgba(212,168,67,0.35)}
+#pwError{display:none;color:#ff6b6b;margin:.8rem 0 0;font-size:.85rem}
+
+/* ── HERO ── */
+.hero{background:linear-gradient(135deg,#fff8ee 0%,#fdf2e0 50%,#fae8c8 100%);padding:36px 40px 28px;border-bottom:3px solid var(--gold);position:relative}
+.hero h1{font-size:1.8rem;font-weight:800;color:var(--gold-dark);letter-spacing:-.5px}
+.hero .subtitle{font-size:.9rem;color:var(--muted);margin-top:2px}
+.meta-row{display:flex;gap:10px;margin-top:16px;flex-wrap:wrap}
+.meta-item{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:10px 16px;min-width:130px;box-shadow:var(--shadow)}
+.meta-item .label{font-size:.6rem;color:var(--muted);text-transform:uppercase;letter-spacing:1.2px;font-weight:600}
+.meta-item .value{font-size:.95rem;color:var(--text);font-weight:700;margin-top:1px}
+.meta-item .value.gold{color:#9b7316}
+
+/* ── NAV ── */
+.nav{background:var(--card);border-bottom:1px solid var(--border);padding:0 24px;position:sticky;top:0;z-index:100;box-shadow:0 2px 12px rgba(0,0,0,.04)}
+.nav-inner{max-width:1200px;margin:0 auto;display:flex;gap:0;overflow-x:auto}
+.nav-btn{padding:14px 20px;border:none;background:transparent;color:var(--muted);font-size:.8rem;font-weight:600;cursor:pointer;font-family:inherit;border-bottom:3px solid transparent;transition:all .2s;white-space:nowrap}
+.nav-btn:hover{color:var(--gold-dark);background:var(--gold-light)}
+.nav-btn.active{color:var(--gold-dark);border-bottom-color:var(--gold);background:transparent}
+
+/* ── CONTAINER ── */
+.container{max-width:1200px;margin:0 auto;padding:24px 24px 60px}
+.page{display:none}.page.active{display:block}
+.section{margin-bottom:28px}
+.section-title{font-size:.72rem;text-transform:uppercase;letter-spacing:2px;color:var(--muted);font-weight:700;margin-bottom:12px;padding-bottom:6px;border-bottom:1px solid var(--border)}
+
+/* ── CARDS ── */
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:14px}
+.card{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:18px 20px;transition:all .2s;position:relative;overflow:hidden}
+.card:hover{border-color:var(--gold);transform:translateY(-2px);box-shadow:0 8px 24px rgba(212,168,67,.1)}
+.card .icon{font-size:1.4rem;margin-bottom:6px}
+.card .name{font-size:.88rem;font-weight:700;color:var(--text);margin-bottom:4px}
+.card .desc{font-size:.78rem;color:var(--subtle);line-height:1.55}
+.badge{position:absolute;top:12px;right:12px;font-size:.58rem;padding:3px 9px;border-radius:8px;font-weight:700;text-transform:uppercase;letter-spacing:.5px}
+.badge-done{background:#e8f8f0;color:#1a8a52}.badge-final{background:var(--gold-light);color:#9b7316}
+.badge-ref{background:#e8f0fa;color:#2874a6}.badge-old{background:#fde8e8;color:#c0392b}
+.badge-new{background:#f0e8fa;color:#7b3fa6}.badge-xlsx{background:#e8f0e8;color:#1e7b1e}
+
+/* ── PROGRESS ── */
+.progress-box{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:20px 24px;margin-bottom:24px;box-shadow:var(--shadow)}
+.progress-header{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:10px}
+.progress-header h3{font-size:1rem;font-weight:700}.progress-header .pct{font-size:1.5rem;font-weight:800;color:#9b7316}
+.progress-bg{height:10px;background:#f0e8d8;border-radius:5px;overflow:hidden}
+.progress-fill{height:100%;border-radius:5px;background:linear-gradient(90deg,var(--gold),#e8c254,var(--gold));background-size:200% 100%;animation:shimmer 3s ease infinite}
+@keyframes shimmer{0%{background-position:200% 0}100%{background-position:-200% 0}}
+.phases{display:flex;justify-content:space-between;margin-top:8px;font-size:.7rem;color:#a09080;font-weight:500}
+.phases .now{color:#9b7316;font-weight:700}
+
+/* ── SUITE VISUAL ── */
+.suite-bars{display:flex;gap:8px;margin-bottom:16px;height:120px;align-items:flex-end}
+.suite-bar{flex:1;border-radius:10px 10px 4px 4px;display:flex;flex-direction:column;justify-content:flex-end;align-items:center;padding:8px 4px;transition:all .3s;cursor:default;box-shadow:0 4px 12px rgba(0,0,0,.1)}
+.suite-bar:hover{transform:translateY(-4px);box-shadow:0 8px 20px rgba(0,0,0,.15)}
+.suite-bar .bl{font-size:.65rem;font-weight:700;color:#fff;text-align:center;text-shadow:0 1px 3px rgba(0,0,0,.3)}
+.suite-bar .bt{font-size:.58rem;color:rgba(255,255,255,.8);margin-top:2px}
+
+.suite-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:10px}
+.suite-card{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:14px;font-size:.75rem;transition:all .2s}
+.suite-card:hover{border-color:var(--gold);box-shadow:0 4px 12px rgba(212,168,67,.08)}
+.suite-card .sn{font-size:1.2rem;font-weight:800;margin-bottom:3px}
+.suite-card .st{font-weight:700;font-size:.8rem;margin-bottom:5px}
+.suite-card .sm{color:var(--subtle);line-height:1.5}
+.suite-card em{color:#9b7316;font-style:normal;font-weight:600}
+
+/* ── MOTIFS ── */
+.motif-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:14px}
+.motif{background:var(--card);border-radius:var(--radius);padding:18px;border-left:4px solid;transition:all .2s;box-shadow:var(--shadow)}
+.motif:hover{transform:translateX(4px);box-shadow:0 4px 16px rgba(212,168,67,.1)}
+.motif h4{font-size:.88rem;font-weight:700;margin-bottom:4px}
+.motif p{font-size:.78rem;color:#6a6050;line-height:1.6}
+.motif-a{border-color:var(--red)}.motif-a h4{color:#c0392b}
+.motif-b{border-color:var(--blue)}.motif-b h4{color:#2874a6}
+.motif-c{border-color:var(--green)}.motif-c h4{color:#1a8a52}
+.motif-d{border-color:var(--gold)}.motif-d h4{color:#9b7316}
+
+/* ── TIMELINE ── */
+.timeline{position:relative;padding-left:36px}
+.timeline::before{content:'';position:absolute;left:12px;top:0;bottom:0;width:2px;background:linear-gradient(180deg,var(--gold),rgba(212,168,67,.4),var(--border));border-radius:1px}
+.tl{position:relative;margin-bottom:12px;padding:12px 16px;background:var(--card);border:1px solid var(--border);border-radius:12px;transition:all .2s}
+.tl:hover{border-color:rgba(212,168,67,.5);box-shadow:0 4px 12px rgba(212,168,67,.06)}
+.tl::before{content:'';position:absolute;left:-30px;top:15px;width:12px;height:12px;border-radius:50%;border:3px solid var(--bg)}
+.tl.done::before{background:var(--green);border-color:#e8f8f0}
+.tl.now::before{background:var(--gold);border-color:var(--gold-light);box-shadow:0 0 0 4px rgba(212,168,67,.2)}
+.tl.future::before{background:#d8d0c4;border-color:#f0ebe2}
+.tl.now{border-color:var(--gold);background:#fffbf2;box-shadow:0 4px 16px rgba(212,168,67,.1)}
+.tl-date{font-size:.7rem;color:var(--muted);font-weight:600;margin-bottom:1px}
+.tl-title{font-size:.85rem;font-weight:700}
+.tl.done .tl-title{color:#a0a090;text-decoration:line-through;text-decoration-color:#c8c0b4}
+.tl-sub{font-size:.72rem;color:#8a7a6a;margin-top:2px}
+.today{font-size:.58rem;background:var(--gold);color:#fff;padding:2px 8px;border-radius:6px;font-weight:800;margin-left:6px;vertical-align:middle;letter-spacing:.5px}
+
+/* ── BUDGET ── */
+.budget-row{display:flex;gap:14px;margin-bottom:14px}
+.budget-block{flex:1;background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:20px;box-shadow:var(--shadow)}
+.budget-block h4{font-size:.7rem;color:var(--muted);text-transform:uppercase;letter-spacing:1px;margin-bottom:6px;font-weight:700}
+.budget-amount{font-size:1.6rem;font-weight:800;color:#9b7316}
+.budget-detail{font-size:.78rem;color:#6a6050;margin-top:6px;line-height:1.8}
+
+/* ── SHEETS EMBED ── */
+.sheets-section{margin-bottom:28px}
+.sheets-tabs{display:flex;gap:0;margin-bottom:0;background:var(--card);border-radius:12px 12px 0 0;padding:4px;border:1px solid var(--border);border-bottom:none}
+.sheets-tab{flex:1;padding:10px 12px;border:none;background:transparent;color:var(--muted);font-size:.78rem;font-weight:600;border-radius:8px;cursor:pointer;font-family:inherit;transition:all .2s}
+.sheets-tab:hover{background:var(--gold-light);color:var(--gold-dark)}
+.sheets-tab.active{background:var(--gold);color:#fff;box-shadow:0 2px 8px rgba(212,168,67,.3)}
+.sheets-frame{border:1px solid var(--border);border-radius:0 0 12px 12px;overflow:hidden;background:#fff}
+.sheets-frame iframe{width:100%;height:500px;border:none}
+
+/* ── COACH ── */
+.coach-box{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:24px;position:relative;overflow:hidden;box-shadow:var(--shadow)}
+.coach-box::before{content:'';position:absolute;top:0;left:0;right:0;height:4px;background:linear-gradient(90deg,var(--gold),#e8c254,var(--gold));border-radius:16px 16px 0 0}
+.coach-box h3{font-size:1.1rem;font-weight:800;color:var(--gold-dark);margin-bottom:16px}
+.coach-item{display:flex;gap:12px;margin-bottom:14px;padding:14px;background:#fdfbf6;border:1px solid #f0e8d8;border-radius:12px;transition:all .2s}
+.coach-item:hover{border-color:rgba(212,168,67,.4);background:#fffdf8}
+.coach-p{min-width:30px;height:30px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:.8rem;flex-shrink:0}
+.p-urgent{background:#fde8e8;color:#c0392b;border:1px solid #f5c4c4}
+.p-soon{background:#fef3dc;color:#b8860b;border:1px solid #f0dca8}
+.p-plan{background:#e8f0fa;color:#2874a6;border:1px solid #c4d8f0}
+.coach-text h4{font-size:.88rem;font-weight:700;margin-bottom:3px}
+.coach-text p{font-size:.78rem;color:#6a6050;line-height:1.5}
+.deadline{display:inline-block;font-size:.7rem;color:#c0392b;font-weight:700;margin-top:4px;background:#fde8e8;padding:2px 10px;border-radius:6px}
+
+/* ── ENSEMBLE ── */
+.ensemble-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:14px}
+
+/* ── RESPONSIVE ── */
+@media(max-width:768px){
+  .hero{padding:24px 16px}.hero h1{font-size:1.3rem}
+  .meta-row{gap:6px}.meta-item{min-width:100px;padding:8px 12px}
+  .suite-grid{grid-template-columns:1fr}.motif-grid{grid-template-columns:1fr}
+  .budget-row{flex-direction:column}.grid{grid-template-columns:1fr}
+  .container{padding:16px 12px 40px}
+  .nav-btn{padding:12px 14px;font-size:.72rem}
+  .sheets-frame iframe{height:400px}
+  .sheets-mobile-hint{display:block}
+  .card .name{font-size:.95rem}
+}
+@media(max-width:480px){
+  .hero h1{font-size:1.1rem}
+  .sheets-frame{display:none}
+  .sheets-mobile-hint{display:block !important}
+}
+.sheets-mobile-hint{display:none;padding:20px;text-align:center;background:var(--gold-light);border:1px solid var(--border);border-radius:0 0 12px 12px}
+.sheets-mobile-hint a{display:inline-block;padding:12px 24px;background:var(--gold);color:#fff;border-radius:10px;text-decoration:none;font-weight:700;font-size:.9rem;margin-top:8px}
+#pwError{color:#c0392b;background:#fde8e8;border-left:4px solid #c0392b;padding:10px 12px;border-radius:6px;font-weight:600;animation:shake .3s}
+@keyframes shake{0%,100%{transform:translateX(0)}25%{transform:translateX(-4px)}75%{transform:translateX(4px)}}
+</style>
+</head>
+<body>
+
+<!-- ══════════════════ LOGIN GATE ══════════════════ -->
+<div id="loginGate">
+  <div class="login-card">
+    <h2>Die Berauschten Zwanziger</h2>
+    <div class="login-sub">Projekt-Dashboard &middot; Kultursommer RLP 2026</div>
+    <label for="pwInput" class="login-sub" style="display:block;margin-bottom:.5rem">Passwort eingeben:</label>
+    <input id="pwInput" type="password" placeholder="Passwort" aria-label="Passwort eingeben" onkeydown="if(event.key==='Enter')checkPw()" autocomplete="off">
+    <button type="button" onclick="checkPw()">Entsperren</button>
+    <p id="pwError" role="alert" aria-live="polite" style="display:none">Falsches Passwort</p>
+  </div>
+</div>
+
+<!-- ══════════════════ APP CONTENT ══════════════════ -->
+<div id="appContent" style="display:none">
+
+<!-- HERO -->
+<div class="hero">
+  <h1 style="cursor:pointer" onclick="goTo('uebersicht')">Die Berauschten Zwanziger: Tango, Rausch &amp; Realit&auml;t</h1>
+  <div class="subtitle">Kultursommer Rheinland-Pfalz 2026 &middot; Kompositionsauftrag &amp; Urauff&uuml;hrung &middot; KUSO-1787/2025</div>
+  <div class="meta-row">
+    <div class="meta-item"><div class="label">Premiere</div><div class="value gold">10. Oktober 2026</div></div>
+    <div class="meta-item"><div class="label">Ort</div><div class="value">Brauerei L&ouml;wer, Ha&szlig;loch</div></div>
+    <div class="meta-item"><div class="label">F&ouml;rderung</div><div class="value gold">2.000 &euro;</div></div>
+    <div class="meta-item"><div class="label">Ensemble</div><div class="value">Quartett</div></div>
+    <div class="meta-item"><div class="label">Dauer Suite</div><div class="value">26&ndash;28 Min.</div></div>
+    <div class="meta-item"><div class="label">Stand</div><div class="value" id="dateDisplay">--</div></div>
+  </div>
+</div>
+
+<!-- NAVIGATION -->
+<nav class="nav">
+  <div class="nav-inner">
+    <button class="nav-btn active" data-page="uebersicht">&Uuml;bersicht</button>
+    <button class="nav-btn" data-page="komposition">Komposition</button>
+    <button class="nav-btn" data-page="timeline">Timeline</button>
+    <button class="nav-btn" data-page="dokumente">Dokumente</button>
+    <button class="nav-btn" data-page="recherche">Recherche</button>
+    <button class="nav-btn" data-page="budget">Budget &amp; Kosten</button>
+    <button class="nav-btn" data-page="refsheet">RefSheet</button>
+    <button class="nav-btn" data-page="coaching">N&auml;chste Schritte</button>
+  </div>
+</nav>
+
+<div class="container">
+
+<!-- ══════════ PAGE: ÜBERSICHT ══════════ -->
+<div id="page-uebersicht" class="page active">
+
+  <div class="progress-box">
+    <div class="progress-header"><h3>Gesamtfortschritt</h3><span class="pct">~30 %</span></div>
+    <div class="progress-bg"><div class="progress-fill" style="width:30%"></div></div>
+    <div class="phases">
+      <span>Konzept &#10003;</span>
+      <span>Recherche &#10003;</span>
+      <span class="now">&#9654; Komposition</span>
+      <span>Partitur</span>
+      <span>Proben</span>
+      <span>Premiere</span>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-title">Projekt auf einen Blick</div>
+    <div class="grid">
+      <div class="card" onclick="goTo('komposition')">
+        <div class="icon">&#127925;</div>
+        <div class="name">5-s&auml;tzige Tangosu&iacute;te</div>
+        <div class="desc">4 Leitmotive (Rausch, Realit&auml;t, Migration, Spiegel), Tango Nuevo trifft Guardia Nueva. Satzskizzen in Arbeit.</div>
+      </div>
+      <div class="card" onclick="goTo('timeline')">
+        <div class="icon">&#128197;</div>
+        <div class="name">15 Meilensteine bis 10.10.</div>
+        <div class="desc">Von Satzskizzen &uuml;ber Partitur bis Generalprobe &ndash; alles terminiert.</div>
+      </div>
+      <div class="card" onclick="goTo('recherche')">
+        <div class="icon">&#128218;</div>
+        <div class="name">9 Recherche-Dokumente</div>
+        <div class="desc">Borges, Disc&eacute;polo, Savigliano, Archetti, Birkenstock u.a. &ndash; plus gro&szlig;e Synthese.</div>
+      </div>
+      <div class="card" onclick="goTo('budget')">
+        <div class="icon">&#128176;</div>
+        <div class="name">2 Kostenpl&auml;ne</div>
+        <div class="desc">Offizieller Plan (6.380 &euro;) + interner Plan (5.680 &euro;). Saldo offiziell = 0.</div>
+      </div>
+      <div class="card" onclick="goTo('dokumente')">
+        <div class="icon">&#128196;</div>
+        <div class="name">Vortrag vorstrukturiert</div>
+        <div class="desc">&bdquo;Tango &amp; Migration &ndash; Die Macht der Ber&uuml;hrung&ldquo; &ndash; 4 Teile + Diskussion, 70 Min.</div>
+      </div>
+      <div class="card" onclick="goTo('refsheet')">
+        <div class="icon">&#128202;</div>
+        <div class="name">RefSheet (Google Sheets)</div>
+        <div class="desc">Zentrale Referenztabelle mit Kostenplan, Aufgaben, Kontakten &ndash; live editierbar.</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-title">Ensemble</div>
+    <div class="ensemble-grid">
+      <div class="card">
+        <div class="icon">&#127930;</div>
+        <div class="name">Norbert Kotzan &ndash; Bandoneon</div>
+        <div class="desc">Komponist, k&uuml;nstlerische Leitung. Emotionale Leitlinie, Schwellt&ouml;ne, Bordune.</div>
+      </div>
+      <div class="card">
+        <div class="icon">&#127931;</div>
+        <div class="name">Julia Carola Jech &ndash; Violine</div>
+        <div class="desc">Klagender und hoffender Gegenpol. Portamenti, Doppelgriffe, Flautando.</div>
+      </div>
+      <div class="card">
+        <div class="icon">&#127929;</div>
+        <div class="name">Jorge Coll &ndash; Klavier</div>
+        <div class="desc">Puls, Formanker, harmonische Drehpunkte. Perkussiv vs. resonante Fl&auml;chen.</div>
+      </div>
+      <div class="card">
+        <div class="icon">&#127928;</div>
+        <div class="name">Johannes Alisch &ndash; Kontrabass</div>
+        <div class="desc">Geerdeter Schritt, Spannungsfundament. Pizzicato-Schritt, sp&auml;ter Bogenlinien.</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════ PAGE: KOMPOSITION ══════════ -->
+<div id="page-komposition" class="page">
+
+  <div class="section">
+    <div class="section-title">Die Suite &ndash; 5 S&auml;tze</div>
+    <div class="suite-bars">
+      <div class="suite-bar" style="height:62%;background:linear-gradient(180deg,#e87461,#d4503c)"><span class="bl">I Prolog</span><span class="bt">~5 Min</span></div>
+      <div class="suite-bar" style="height:78%;background:linear-gradient(180deg,#f0a040,#d88a28)"><span class="bl">II Vulkan</span><span class="bt">~6 Min</span></div>
+      <div class="suite-bar" style="height:48%;background:linear-gradient(180deg,#5dade2,#3498db)"><span class="bl">III &Uuml;berfahrt</span><span class="bt">~4:30</span></div>
+      <div class="suite-bar" style="height:88%;background:linear-gradient(180deg,#52c48a,#2eab66)"><span class="bl">IV Realit&auml;t</span><span class="bt">~6:30</span></div>
+      <div class="suite-bar" style="height:58%;background:linear-gradient(180deg,#d4a843,#b8922a)"><span class="bl">V Spiegel</span><span class="bt">~5 Min</span></div>
+    </div>
+    <div class="suite-grid">
+      <div class="suite-card"><div class="sn" style="color:#d4503c">I</div><div class="st">Prolog: Rausch 1926</div><div class="sm">104&ndash;118 bpm<br>Marcato in 4, synkopisch<br>Motiv A er&ouml;ffnet<br><em>Glanz, urbane Energie</em></div></div>
+      <div class="suite-card"><div class="sn" style="color:#d88a28">II</div><div class="st">Tanz auf dem Vulkan</div><div class="sm">120&ndash;138 bpm<br>Verdichtung, 3-3-2<br>Duo-Ausd&uuml;nnung Mitte<br><em>Virtuosit&auml;t, Exzess</em></div></div>
+      <div class="suite-card"><div class="sn" style="color:#3498db">III</div><div class="st">&Uuml;berfahrt</div><div class="sm">60&ndash;76 bpm<br>Schwebend, Bordun<br>Motiv C (Migration)<br><em>Unruhe, Sehnsucht</em></div></div>
+      <div class="suite-card"><div class="sn" style="color:#2eab66">IV</div><div class="st">Realit&auml;t / Ankunft</div><div class="sm">52&ndash;68 bpm<br>Rubato, Motiv B Kern<br>Gr&ouml;&szlig;te Dynamik pp&ndash;ff<br><em>Intimit&auml;t, Fragilit&auml;t</em></div></div>
+      <div class="suite-card"><div class="sn" style="color:#b8922a">V</div><div class="st">Spiegel 2026</div><div class="sm">80&ndash;96 bpm<br>Motiv D (A+B verschr&auml;nkt)<br>Offenes Ende<br><em>Reflexion, Restspannung</em></div></div>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-title">Leitmotive</div>
+    <div class="motif-grid">
+      <div class="motif motif-a"><h4>Motiv A &ndash; Rausch</h4><p>Aufw&auml;rts, chromatisch, synkopisch. 2&ndash;3 Takte. Er&ouml;ffnet Teil I, kehrt in V transformiert wieder.</p></div>
+      <div class="motif motif-b"><h4>Motiv B &ndash; Realit&auml;t</h4><p>Abw&auml;rts, kleine Intervalle, rubato. Kern von Teil IV, n&uuml;chtern und fragil.</p></div>
+      <div class="motif motif-c"><h4>Motiv C &ndash; Migration</h4><p>3-gegen-2 in Klavier/Bass, dar&uuml;ber lange Bando/Violin-Linie. Pendelnde Reibung.</p></div>
+      <div class="motif motif-d"><h4>Motiv D &ndash; Spiegel</h4><p>&Uuml;berlagerung A+B in Engf&uuml;hrung. Palindrom-artig. 1926 spiegelt sich in 2026.</p></div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════ PAGE: TIMELINE ══════════ -->
+<div id="page-timeline" class="page">
+  <div class="section">
+    <div class="section-title">Projektfahrplan bis 10.10.2026</div>
+    <div class="timeline">
+      <div class="tl done"><div class="tl-date">01.03.2026</div><div class="tl-title">Projektkickoff, Rollen kl&auml;ren</div><div class="tl-sub">&#10003; Verbindliche Zust&auml;ndigkeiten festgelegt</div></div>
+      <div class="tl done"><div class="tl-date">05.03.2026</div><div class="tl-title">Endg&uuml;ltige Form fixieren (5 Teile)</div><div class="tl-sub">&#10003; Vorschlag A gew&auml;hlt, Masterfassung erstellt</div></div>
+      <div class="tl done"><div class="tl-date">12.03.2026</div><div class="tl-title">Motivkatalog A/B/C/D festlegen</div><div class="tl-sub">&#10003; 4 Leitmotive definiert, Skizzen vorhanden</div></div>
+      <div class="tl done"><div class="tl-date">14.03.2026</div><div class="tl-title">Recherche-Dokumente fertiggestellt</div><div class="tl-sub">&#10003; 9 Dokumente: Borges bis UNESCO, Synthese erstellt</div></div>
+      <div class="tl now"><div class="tl-date">15.03.2026 <span class="today">HEUTE</span></div><div class="tl-title">Kostenpl&auml;ne &amp; Dashboard finalisiert</div><div class="tl-sub">Offizieller + interner Kostenplan, Projekt-Dashboard live</div></div>
+      <div class="tl future"><div class="tl-date">20.03.2026</div><div class="tl-title">Satzskizzen Teil I&ndash;II</div><div class="tl-sub">&#8594; Skizzenpaket 1: Prolog + Tanz auf dem Vulkan</div></div>
+      <div class="tl future"><div class="tl-date">31.03.2026</div><div class="tl-title">Satzskizzen Teil III&ndash;V</div><div class="tl-sub">&#8594; Skizzenpaket 2: &Uuml;berfahrt, Realit&auml;t, Spiegel</div></div>
+      <div class="tl future"><div class="tl-date">10.04.2026</div><div class="tl-title">Gesamtentwurf zusammenf&uuml;hren</div><div class="tl-sub">&#8594; Gesamtentwurf v1</div></div>
+      <div class="tl future"><div class="tl-date">20.04.2026</div><div class="tl-title">Interne Durchsicht &amp; K&uuml;rzungen</div><div class="tl-sub">&#8594; Gesamtentwurf v2</div></div>
+      <div class="tl future"><div class="tl-date">05.05.&ndash;05.06.</div><div class="tl-title">Partitur-Detailphase</div><div class="tl-sub">&#8594; Partiturblock 1 (I&ndash;III) + Block 2 (IV&ndash;V)</div></div>
+      <div class="tl future"><div class="tl-date">20.06.&ndash;30.06.</div><div class="tl-title">Stimmenausz&uuml;ge + Korrektur</div><div class="tl-sub">&#8594; Stimmen v1 mit Cue-Notizen</div></div>
+      <div class="tl future"><div class="tl-date">10.07.2026</div><div class="tl-title">Stimmen an Ensemble versenden</div><div class="tl-sub">&#8594; Deadline f&uuml;r probef&auml;higes Material!</div></div>
+      <div class="tl future"><div class="tl-date">01.08.&ndash;28.08.</div><div class="tl-title">3 Proben (Form &#8594; Artikulation &#8594; Durchlauf)</div><div class="tl-sub">&#8594; Klangbild vereinheitlicht, Zeitrahmen best&auml;tigt</div></div>
+      <div class="tl future"><div class="tl-date">05.09.&ndash;27.09.</div><div class="tl-title">Programmtext, Vortrag, Video</div><div class="tl-sub">&#8594; Pressepaket, Kultursalon-Video fertig</div></div>
+      <div class="tl future"><div class="tl-date">03.10.2026</div><div class="tl-title">Generalprobe im Saal</div><div class="tl-sub">&#8594; Auff&uuml;hrungsreife</div></div>
+      <div class="tl future"><div class="tl-date" style="color:#9b7316;font-weight:700">10.10.2026</div><div class="tl-title" style="color:#9b7316">&#9733; Urauff&uuml;hrung in Ha&szlig;loch</div><div class="tl-sub">Milonga + konzertante Premiere bei Brauerei L&ouml;wer</div></div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════ PAGE: DOKUMENTE ══════════ -->
+<div id="page-dokumente" class="page">
+
+  <div class="section">
+    <div class="section-title">Verbindliche Projektdokumente</div>
+    <div class="grid">
+      <div class="card"><span class="badge badge-done">erledigt</span><div class="icon">&#128203;</div><div class="name">01 Dramaturgie-Vorschl&auml;ge</div><div class="desc">3 Strukturvorschl&auml;ge &#8594; Vorschlag A gew&auml;hlt (5-teilige Suite)</div></div>
+      <div class="card"><span class="badge badge-done">fertig</span><div class="icon">&#128221;</div><div class="name">02 Programmtext-Vorschl&auml;ge</div><div class="desc">Kurz, Mittel, Lang &ndash; Presse, Web, Programmheft</div></div>
+      <div class="card"><span class="badge badge-done">fertig</span><div class="icon">&#127925;</div><div class="name">03 Motiv- und Satzskizzen</div><div class="desc">4 Leitmotive (A&ndash;D), Skizzen I&ndash;V, 4er-Probeplan</div></div>
+      <div class="card"><span class="badge badge-final">verbindlich</span><div class="icon">&#11088;</div><div class="name">04 Masterfassung</div><div class="desc">Endg&uuml;ltige Form, Klangkonzept, Besetzungsrollen</div></div>
+      <div class="card"><span class="badge badge-done">fertig</span><div class="icon">&#128240;</div><div class="name">05 Presseversion Web/Social</div><div class="desc">Social-Kurz, Veranstaltungstext, Presse-Lang</div></div>
+      <div class="card"><span class="badge badge-final">verbindlich</span><div class="icon">&#128197;</div><div class="name">06 Checkliste &amp; Termine</div><div class="desc">26 Meilensteine: 01.03.&ndash;31.10.2026</div></div>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-title">Fachvortrag &amp; Antrag</div>
+    <div class="grid">
+      <div class="card"><span class="badge badge-new">neu</span><div class="icon">&#127891;</div><div class="name">Fachvortrag-Struktur</div><div class="desc">&bdquo;Tango &amp; Migration &ndash; Die Macht der Ber&uuml;hrung (1926&ndash;2026)&ldquo; &ndash; 4 Teile + Diskussion</div></div>
+      <div class="card"><span class="badge badge-new">neu</span><div class="icon">&#128214;</div><div class="name">Erweiterte Antragsrecherche</div><div class="desc">Antragsanalyse + vertiefte Recherche Rausch/Tango/Migration/Pfalz</div></div>
+      <div class="card"><span class="badge badge-ref">referenz</span><div class="icon">&#128196;</div><div class="name">Originalantrag (PDF)</div><div class="desc">KUSO-1787/2025, Tangotaverne e.V., 14 Seiten</div></div>
+      <div class="card"><span class="badge badge-ref">referenz</span><div class="icon">&#128196;</div><div class="name">Pressemappe Ensemble (PDF)</div><div class="desc">Buenos Aires Tango Ensemble / Cuarteto Bien Porte&ntilde;o</div></div>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-title">Finanzdokumente</div>
+    <div class="grid">
+      <div class="card"><span class="badge badge-xlsx">xlsx</span><div class="icon">&#128202;</div><div class="name">Kostenplan OFFIZIELL</div><div class="desc">F&uuml;r F&ouml;rdergeber: 6.380 &euro; Ausgaben, Saldo = 0, ohne Eintrittsgelder</div></div>
+      <div class="card"><span class="badge badge-xlsx">xlsx</span><div class="icon">&#128202;</div><div class="name">Kostenplan INTERN</div><div class="desc">Echte Kalkulation: 5.680 &euro; Ausgaben, Saldo &minus;1.780 &euro;, Quittungs-Checkliste</div></div>
+      <div class="card"><span class="badge badge-old">veraltet</span><div class="icon">&#9888;</div><div class="name">Finanzplanung (alt)</div><div class="desc">Erste Version &ndash; nicht mehr verwenden!</div></div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════ PAGE: RECHERCHE ══════════ -->
+<div id="page-recherche" class="page">
+  <div class="section">
+    <div class="section-title">Synthese-Dokument</div>
+    <div class="grid">
+      <div class="card" style="grid-column:1/-1;border-left:4px solid var(--gold)">
+        <span class="badge badge-final">hauptdokument</span>
+        <div class="icon">&#128218;</div>
+        <div class="name">SYNTHESE: Alle Quellen f&uuml;r den Vortrag</div>
+        <div class="desc">148 Abs&auml;tze, 6 Kapitel: Urspr&uuml;nge des Tango (3 Thesen), Hacerse la Am&eacute;rica, Der Spiegel, Zeitspiegel 1926&ndash;2026, Sprache des Tango, Literaturverzeichnis. Vereint alle 8 Einzelquellen entlang der 4 Leitmotive.</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-title">Einzeldokumente nach Quellen</div>
+    <div class="grid">
+      <div class="card"><span class="badge badge-ref">quelle</span><div class="icon">&#128214;</div><div class="name">01 &ndash; Borges &amp; der Tango</div><div class="desc">Compadrito-These, Gegenthese zum Conventillo-Mythos, &bdquo;El tango&ldquo; (1965)</div></div>
+      <div class="card"><span class="badge badge-ref">quelle</span><div class="icon">&#128214;</div><div class="name">02 &ndash; Disc&eacute;polo &amp; S&aacute;bato</div><div class="desc">&bdquo;Pensamiento triste que se baila&ldquo;, Cambalache, S&aacute;batos Metaphysik</div></div>
+      <div class="card"><span class="badge badge-ref">quelle</span><div class="icon">&#128214;</div><div class="name">03 &ndash; Savigliano</div><div class="desc">Political Economy of Passion, Auto-Exotismus, Exportware Tango</div></div>
+      <div class="card"><span class="badge badge-ref">quelle</span><div class="icon">&#128214;</div><div class="name">04 &ndash; Archetti</div><div class="desc">Masculinities, Hybridisierung/Kreolisierung, Compadrito-Kultur</div></div>
+      <div class="card"><span class="badge badge-ref">quelle</span><div class="icon">&#128214;</div><div class="name">05 &ndash; Birkenstock</div><div class="desc">&bdquo;Tango: Geschichte und Geschichten&ldquo;, 12-Tangos-Film, Spiegel-These</div></div>
+      <div class="card"><span class="badge badge-ref">quelle</span><div class="icon">&#128214;</div><div class="name">06 &ndash; Ferrer</div><div class="desc">Academia Nacional del Tango, Lunfardo, Piazzolla</div></div>
+      <div class="card"><span class="badge badge-ref">quelle</span><div class="icon">&#128214;</div><div class="name">07 &ndash; Conventillos &amp; Migration</div><div class="desc">Einwanderungsgeschichte, deutsche Emigration, Lebensbedingungen</div></div>
+      <div class="card"><span class="badge badge-ref">quelle</span><div class="icon">&#128214;</div><div class="name">08 &ndash; UNESCO 2009</div><div class="desc">Weltkulturerbe-Anerkennung, Paradox der lokalen Verachtung</div></div>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-title">&Auml;ltere Recherche-Dokumente</div>
+    <div class="grid">
+      <div class="card"><span class="badge badge-ref">recherche</span><div class="icon">&#127758;</div><div class="name">Recherche Migration (vertieft)</div><div class="desc">Pfalz&#8594;Argentinien, Bandoneon-Geschichte, Guardia Nueva, Berlin vs. BA 1926</div></div>
+      <div class="card"><span class="badge badge-ref">recherche</span><div class="icon">&#127932;</div><div class="name">Recherche Kompositionstechnik</div><div class="desc">Tango-Harmonik, Rhythmus-Patterns, Bandoneon-Technik, Formmodelle</div></div>
+      <div class="card"><span class="badge badge-ref">recherche</span><div class="icon">&#128209;</div><div class="name">Argentinische Tango-Recherche 1920er</div><div class="desc">Umfangreiche Recherche zu Argentinien in den 1920er Jahren</div></div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════ PAGE: BUDGET ══════════ -->
+<div id="page-budget" class="page">
+  <div class="section">
+    <div class="section-title">Finanz&uuml;bersicht &ndash; zwei Kostenpl&auml;ne</div>
+
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:20px">
+      <div style="background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:20px;border-top:4px solid var(--gold)">
+        <h4 style="font-size:.7rem;color:var(--muted);text-transform:uppercase;letter-spacing:1px;margin-bottom:6px">Offizieller Plan (f&uuml;r F&ouml;rdergeber)</h4>
+        <div class="budget-amount">6.380 &euro;</div>
+        <div class="budget-detail">
+          Ausgaben = Einnahmen (Saldo 0)<br>
+          Keine Eintrittsgelder (Vereinsmitglieder)<br>
+          Keine KSK (Kleinunternehmer)<br>
+          Eigenmittel Verein: 3.580 &euro;<br>
+          Eigenleistungen: 700 &euro;
+        </div>
+      </div>
+      <div style="background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:20px;border-top:4px solid var(--red)">
+        <h4 style="font-size:.7rem;color:var(--muted);text-transform:uppercase;letter-spacing:1px;margin-bottom:6px">Interner Plan (echte Kalkulation)</h4>
+        <div class="budget-amount">5.680 &euro;</div>
+        <div class="budget-detail">
+          Einnahmen real: 3.900 &euro;<br>
+          <strong style="color:var(--red)">Saldo: &minus;1.780 &euro;</strong> (aus Vereinskasse)<br>
+          Davon N. Kotzan: 1.050 &euro;<br>
+          Eintritt: 1.800 &euro; (180 Pers. &times; 10 &euro;)
+        </div>
+      </div>
+    </div>
+
+    <div class="section-title">Ausgaben-Aufteilung</div>
+    <div class="budget-row">
+      <div class="budget-block"><h4>Honorare</h4><div class="budget-amount">2.850 &euro;</div><div class="budget-detail">Ensemble-Gagen: 1.800 &euro;<br>Komposition: 500 &euro;<br>Vortrag: 300 &euro;<br>Video: 250 &euro;</div></div>
+      <div class="budget-block"><h4>Auff&uuml;hrung</h4><div class="budget-amount">2.700 &euro;</div><div class="budget-detail">Saalmiete: 2.000 &euro;<br>Tontechniker: 180 &euro;<br>Werbung: 200 &euro;<br>K&uuml;nstlerbetreuung: 120 &euro;<br>Sonstiges: 200 &euro;</div></div>
+      <div class="budget-block"><h4>Abgaben &amp; Verwaltung</h4><div class="budget-amount">130 &euro;</div><div class="budget-detail">GEMA: 100 &euro;<br>Porto/B&uuml;ro: 30 &euro;<br><em style="color:var(--muted);font-size:.72rem">KSK entf&auml;llt</em></div></div>
+    </div>
+
+    <div class="section-title">Einnahmen-Quellen</div>
+    <div class="budget-row">
+      <div class="budget-block"><h4>F&ouml;rderung</h4><div class="budget-amount">2.000 &euro;</div><div class="budget-detail">Kultursommer RLP<br>Bewilligt (KUSO-1787/2025)</div></div>
+      <div class="budget-block"><h4>Eintritt (intern)</h4><div class="budget-amount">1.800 &euro;</div><div class="budget-detail">ca. 180 Besucher &times; 10 &euro;<br><em style="color:var(--muted);font-size:.72rem">Im offiziellen Plan nicht aufgef&uuml;hrt</em></div></div>
+      <div class="budget-block"><h4>Sonstiges</h4><div class="budget-amount">100 &euro;</div><div class="budget-detail">Getr&auml;nkeverkauf Theke</div></div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════ PAGE: REFSHEET ══════════ -->
+<div id="page-refsheet" class="page">
+  <div class="section">
+    <div class="section-title">RefSheet &ndash; Google Sheets (Live)</div>
+    <p style="font-size:.85rem;color:var(--subtle);margin-bottom:16px">
+      Zentrale Referenztabelle &ndash; direkt editierbar. Kostenplan, Aufgaben, Kontakte etc. in einzelnen Reitern.
+      <a href="https://docs.google.com/spreadsheets/d/1652C0zw7fNTcncYuJ3P5xwRO2g2benAzEHRo7oI2J7w/edit" target="_blank" rel="noopener" style="color:var(--gold-dark);font-weight:600;text-decoration:underline">Im neuen Tab &ouml;ffnen &#8599;</a>
+    </p>
+
+    <div class="sheets-section">
+      <div class="sheets-tabs" id="sheetsTabs">
+        <button class="sheets-tab active" data-gid="0">&Uuml;bersicht</button>
+        <button class="sheets-tab" data-gid="1">Kostenplan</button>
+        <button class="sheets-tab" data-gid="2">Aufgaben</button>
+        <button class="sheets-tab" data-gid="3">Kontakte</button>
+        <button class="sheets-tab" data-gid="4">Notizen</button>
+      </div>
+      <div class="sheets-frame">
+        <iframe id="sheetsFrame" title="Google Sheets RefSheet" loading="lazy" src="" tabindex="0"></iframe>
+      </div>
+      <div class="sheets-mobile-hint">
+        <p style="font-size:.85rem;color:var(--subtle)">Google Sheets ist auf Mobilger&auml;ten besser direkt erreichbar:</p>
+        <a href="https://docs.google.com/spreadsheets/d/1652C0zw7fNTcncYuJ3P5xwRO2g2benAzEHRo7oI2J7w/edit" target="_blank" rel="noopener">Sheets &ouml;ffnen &#8599;</a>
+      </div>
+    </div>
+
+    <div style="background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:16px;margin-top:14px">
+      <h4 style="font-size:.8rem;font-weight:700;margin-bottom:8px">Empfohlene Reiter f&uuml;r das RefSheet:</h4>
+      <div style="font-size:.8rem;color:var(--subtle);line-height:1.8">
+        <strong>Reiter 1 &ndash; &Uuml;bersicht:</strong> Projektdaten, Termine, Kontakte<br>
+        <strong>Reiter 2 &ndash; Kostenplan:</strong> Ausgaben/Einnahmen (offiziell + intern nebeneinander)<br>
+        <strong>Reiter 3 &ndash; Aufgaben:</strong> To-Do-Liste mit Deadline, Zust&auml;ndig, Status<br>
+        <strong>Reiter 4 &ndash; Kontakte:</strong> Ensemble, Technik, Saal, Verein<br>
+        <strong>Reiter 5 &ndash; Notizen:</strong> Ideen, offene Fragen, Links
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════ PAGE: COACHING ══════════ -->
+<div id="page-coaching" class="page">
+  <div class="coach-box">
+    <h3>N&auml;chste Schritte &ndash; Priorit&auml;ten</h3>
+
+    <div class="coach-item">
+      <div class="coach-p p-urgent">!</div>
+      <div class="coach-text">
+        <h4>Satzskizzen I &amp; II schreiben</h4>
+        <p>Prolog &bdquo;Rausch 1926&ldquo; und &bdquo;Tanz auf dem Vulkan&ldquo; &ndash; Motiv A als Ausgangspunkt. Marcato in 4, synkopisch, dann Verdichtung mit 3-3-2.</p>
+        <span class="deadline">Deadline: 20.03.2026</span>
+      </div>
+    </div>
+
+    <div class="coach-item">
+      <div class="coach-p p-urgent">!</div>
+      <div class="coach-text">
+        <h4>Offiziellen Kostenplan einreichen</h4>
+        <p>Kostenplan OFFIZIELL ist fertig (6.380 &euro;, Saldo = 0). An Kultursommer / F&ouml;rderstelle senden.</p>
+        <span class="deadline">Deadline: baldm&ouml;glichst</span>
+      </div>
+    </div>
+
+    <div class="coach-item">
+      <div class="coach-p p-soon">2</div>
+      <div class="coach-text">
+        <h4>RefSheet bef&uuml;llen</h4>
+        <p>Google Sheet mit Reitern Kostenplan, Aufgaben, Kontakte einrichten und Daten &uuml;bertragen.</p>
+        <span class="deadline">Deadline: 20.03.2026</span>
+      </div>
+    </div>
+
+    <div class="coach-item">
+      <div class="coach-p p-soon">2</div>
+      <div class="coach-text">
+        <h4>Satzskizzen III&ndash;V</h4>
+        <p>&Uuml;berfahrt, Realit&auml;t/Ankunft, Spiegel. Motive B, C, D einf&uuml;hren. Bordun + Rubato + Engf&uuml;hrung.</p>
+        <span class="deadline">Deadline: 31.03.2026</span>
+      </div>
+    </div>
+
+    <div class="coach-item">
+      <div class="coach-p p-plan">3</div>
+      <div class="coach-text">
+        <h4>Ensemble informieren &amp; Termine fixieren</h4>
+        <p>Jech, Coll, Alisch kontaktieren. Proben-Bl&ouml;cke August fixieren. Stimmenversand 10.07. ank&uuml;ndigen.</p>
+        <span class="deadline">Deadline: April 2026</span>
+      </div>
+    </div>
+
+    <div class="coach-item">
+      <div class="coach-p p-plan">3</div>
+      <div class="coach-text">
+        <h4>Saalmiete &amp; GEMA kl&auml;ren</h4>
+        <p>Vertrag Brauerei L&ouml;wer best&auml;tigen, GEMA-Anmeldung f&uuml;r 10.10. vorbereiten.</p>
+        <span class="deadline">Deadline: Mai 2026</span>
+      </div>
+    </div>
+
+    <div class="coach-item">
+      <div class="coach-p p-plan">3</div>
+      <div class="coach-text">
+        <h4>Vortrag ausarbeiten</h4>
+        <p>Struktur steht (4 Teile + Diskussion). Inhalt basierend auf Synthese-Dokument ausformulieren. Birkenstock-Spiegel-These als roter Faden.</p>
+        <span class="deadline">Deadline: September 2026</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+</div><!-- /container -->
+
+<!-- FOOTER -->
+<div style="background:#2c2820;padding:20px 24px;text-align:center">
+  <div style="color:#8a7a6a;font-size:.75rem">
+    Die Berauschten Zwanziger &middot; Tangotaverne e.V. Landau &middot; Kultursommer RLP 2026<br>
+    <span style="color:#6a6050">Dashboard-Stand: M&auml;rz 2026</span>
+  </div>
+</div>
+
+</div><!-- /appContent -->
+
+<script>
+// ── PASSWORD GATE ──
+const HASH = '7152e6ec048e24fadb1076257daa655ab198bc310e44f5531b5a02e544613d49';
+
+async function sha256(str) {
+  const buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(str));
+  return Array.from(new Uint8Array(buf)).map(b => b.toString(16).padStart(2, '0')).join('');
+}
+
+let failCount = 0;
+async function checkPw() {
+  if (failCount >= 5) {
+    document.getElementById('pwError').textContent = 'Zu viele Versuche. Bitte Seite neu laden.';
+    document.getElementById('pwError').style.display = 'block';
+    return;
+  }
+  const val = document.getElementById('pwInput').value;
+  const hash = await sha256(val);
+  if (hash === HASH) {
+    sessionStorage.setItem('berauschte_auth', '1');
+    document.getElementById('loginGate').style.opacity = '0';
+    document.getElementById('loginGate').style.transition = 'opacity 0.4s';
+    setTimeout(() => {
+      document.getElementById('loginGate').style.display = 'none';
+      document.getElementById('appContent').style.display = 'block';
+    }, 400);
+  } else {
+    failCount++;
+    document.getElementById('pwError').style.display = 'block';
+    document.getElementById('pwInput').value = '';
+    document.getElementById('pwInput').focus();
+  }
+}
+
+// Auto-unlock
+if (sessionStorage.getItem('berauschte_auth') === '1') {
+  document.getElementById('loginGate').style.display = 'none';
+  document.getElementById('appContent').style.display = 'block';
+}
+
+// ── NAVIGATION ──
+document.querySelectorAll('.nav-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+    document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+    btn.classList.add('active');
+    document.getElementById('page-' + btn.dataset.page).classList.add('active');
+    window.scrollTo({top: 0, behavior: 'smooth'});
+  });
+});
+
+function goTo(page) {
+  document.querySelectorAll('.nav-btn').forEach(b => {
+    b.classList.toggle('active', b.dataset.page === page);
+  });
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.getElementById('page-' + page).classList.add('active');
+  // Lazy-load Sheets beim ersten Besuch des RefSheet-Tabs
+  if (page === 'refsheet' && !sheetsLoaded) loadSheet('0');
+  window.scrollTo({top: 0, behavior: 'smooth'});
+}
+
+// ── SHEETS TABS (lazy-loading) ──
+const SHEETS_BASE = 'https://docs.google.com/spreadsheets/d/1652C0zw7fNTcncYuJ3P5xwRO2g2benAzEHRo7oI2J7w/edit?usp=sharing&rm=minimal#gid=';
+let sheetsLoaded = false;
+function loadSheet(gid) {
+  const frame = document.getElementById('sheetsFrame');
+  frame.src = SHEETS_BASE + gid;
+  sheetsLoaded = true;
+}
+document.querySelectorAll('.sheets-tab').forEach(tab => {
+  tab.addEventListener('click', () => {
+    document.querySelectorAll('.sheets-tab').forEach(t => t.classList.remove('active'));
+    tab.classList.add('active');
+    loadSheet(tab.dataset.gid);
+  });
+});
+
+// ── DATE DISPLAY ──
+const now = new Date();
+document.getElementById('dateDisplay').textContent =
+  now.toLocaleDateString('de-DE', {day:'2-digit',month:'2-digit',year:'numeric'});
+</script>
+</body>
+</html>
