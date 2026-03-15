@@ -13,7 +13,7 @@
   --bg:#f5f3ef;--card:#ffffff;--border:#e8dcc8;
   --text:#2c2c2c;--muted:#6a6050;--subtle:#5a4a40;
   --red:#e25d50;--blue:#3498db;--green:#2ecc71;--amber:#f0a040;
-  --radius:14px;--shadow:0 2px 12px rgba(212,168,67,0.06);
+  --radius:14px;--shadow:0 2px 12px rgba(212,168,67,006);
 }
 body{font-family:'Inter',system-ui,sans-serif;background:var(--bg);color:var(--text);line-height:1.65;overflow-x:hidden}
 
@@ -657,7 +657,7 @@ function goTo(page) {
 }
 
 // ── SHEETS TABS (lazy-loading) ──
-const SHEETS_BASE = 'https://docs.google.com/spreadsheets/d/1652C0zw7fNTcncYuJ3P5xwRO2g2benAzEHRo7oI2J7w/edit?usp=sharing&rm=minimal#gid=';
+const SHEETS_BASE = 'https://docs.google.com/spreadsheets/d/1652C0zw7fNTcncYuJ3P5xwRO2g2benAzEHRo7oI2J7w/pubhtml?widget=true&headers=false&chrome=false&single=true&gid=';
 let sheetsLoaded = false;
 function loadSheet(gid) {
   const frame = document.getElementById('sheetsFrame');
