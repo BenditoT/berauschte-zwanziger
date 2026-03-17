@@ -641,6 +641,8 @@ document.querySelectorAll('.nav-btn').forEach(btn => {
     document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
     btn.classList.add('active');
     document.getElementById('page-' + btn.dataset.page).classList.add('active');
+    // Lazy-load Sheets beim ersten Besuch des RefSheet-Tabs
+    if (btn.dataset.page === 'refsheet' && !sheetsLoaded) loadSheet('0');
     window.scrollTo({top: 0, behavior: 'smooth'});
   });
 });
